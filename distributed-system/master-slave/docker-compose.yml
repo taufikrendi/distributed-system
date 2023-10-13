@@ -1,0 +1,105 @@
+version: '3.7'
+
+services:
+  postgresql-account-master:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    volumes:
+      - 'postgresql_account_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=account_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=account_repl_password
+      - POSTGRESQL_USERNAME=account_master_db
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_DATABASE=account_db
+      - ALLOW_EMPTY_PASSWORD=no
+  postgresql-account-slave:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    depends_on:
+      - postgresql-account-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=account_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=account_repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-account-master
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=no
+  postgresql-funds-master:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    volumes:
+      - 'postgresql_funds_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=funds_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=funds_repl_password
+      - POSTGRESQL_USERNAME=funds_master_db
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_DATABASE=funds_db
+      - ALLOW_EMPTY_PASSWORD=no
+  postgresql-funds-slave:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    depends_on:
+      - postgresql-funds-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=funds_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=funds_repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-funds-master
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=no
+  postgresql-transaction-master:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    volumes:
+      - 'postgresql_transaction_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=transaction_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=transaction_repl_password
+      - POSTGRESQL_USERNAME=transaction_master_db
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_DATABASE=transaction_db
+      - ALLOW_EMPTY_PASSWORD=no
+  postgresql-transaction-slave:
+    image: docker.io/bitnami/postgresql:13-debian-10
+    ports:
+      - '5432'
+    depends_on:
+      - postgresql-transaction-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=transaction_repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=transaction_repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-transaction-master
+      - POSTGRESQL_PASSWORD=secret_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=no
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    restart: unless-stopped
+volumes:
+  postgresql_account_master_data:
+    driver: local
+  postgresql_funds_master_data:
+    driver: local
+  postgresql_transaction_master_data:
+    driver: local
+networks:
+  default:
+    name: sample-network
