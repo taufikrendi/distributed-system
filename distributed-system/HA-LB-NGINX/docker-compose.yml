@@ -1,0 +1,36 @@
+version: '3'
+services:
+  fst-nginx:
+    build:
+      context: .
+      dockerfile: fst-nginx/Dockerfile
+    container_name: fst-nginx
+    ports:
+      - "85:85"
+    networks:
+      - ha_nginx
+    volumes:
+      - ./fst-nginx/www/:/usr/share/nginx/html
+  sec-nginx:
+    build:
+      context: .
+      dockerfile: sec-nginx/Dockerfile
+    container_name: sec-nginx
+    ports:
+      - "86:86"
+    networks:
+      - ha_nginx
+    volumes:
+      - ./sec-nginx/www/:/usr/share/nginx/html
+  thr-nginx:
+    build:
+      context: .
+      dockerfile: thr-nginx/Dockerfile
+    container_name: thr-nginx
+    ports:
+      - "80:80"
+    networks:
+      - ha_nginx
+networks:
+  ha_nginx:
+    driver: bridge
